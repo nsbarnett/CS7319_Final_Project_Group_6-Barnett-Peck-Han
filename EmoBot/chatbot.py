@@ -1,6 +1,5 @@
 # This is a simple chatbot using OpenAI's gpt-4 model.
 import openai
-# "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"
 
 class ChatBot:
     def __init__(self, api_key: str, instructions: str, model="gpt-4"):
