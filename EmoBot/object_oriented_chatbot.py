@@ -548,17 +548,6 @@ def mood_selection_post_chat(profile):
     aspiration_label = get_font(10).render(f"Aspiration: {aspiration}", True, "#b68f40")
     aspiration_label_rect = aspiration_label.get_rect(center=(WIDTH / 2, HEIGHT / 5 - 30))
 
-    # # Draw chat history
-    # y = HEIGHT - 300  # Start drawing chat history from the bottom of the screen
-    # max_lines = 2  # Maximum chat lines displayed
-    # max_width = WIDTH - 20  # same as input box width
-    # for line in aspiration[-max_lines:]:
-    #     wrapped_lines = wrap_text(line, chat_font, max_width)
-    #     for wrap_line in wrapped_lines:
-    #         chat_surface = chat_font.render(wrap_line, True, BLACK)
-    #         SCREEN.blit(chat_surface, (10, y))
-    #         y += 25
-
 
     while True:
         MOOD_MOUSE_POS = pygame.mouse.get_pos()
