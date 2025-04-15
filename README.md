@@ -70,7 +70,7 @@ This approach ensures clean separation between UI and business logic, and suppor
 
 ---
 
-## 🧱 Object-Oriented Programming (OOP)
+## Object-Oriented Programming (OOP)
 
 In parallel, we also structured the project using OOP principles. Each core functionality is implemented as a class:
 
