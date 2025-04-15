@@ -13,7 +13,7 @@ class ChatBot:
         self.client = openai.OpenAI(api_key=openai.api_key)
 
 
-    def get_response(self, user_input): 
+    def get_response(self, user_input: str) -> str:
         self.history.append({"role": "user", "content": user_input})
         try:
             response = self.client.chat.completions.create(
