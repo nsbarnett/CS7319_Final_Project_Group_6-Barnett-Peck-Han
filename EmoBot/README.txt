@@ -30,7 +30,17 @@ Requirements:
     - chatbot.py: For interacting with the chatbot API
     - profile.py: For handling profile creation and conversion to dictionary format
 
-How to Run:
+How to Run Client-Server Architecture:
+    1. Obtain a working OpenAI API Key
+    2. Create a .env file following the format: OPENAI_API_KEY=your-api-key-here
+    3. Make sure FastAPI, Uvicorn, ngrok are installed 
+    4. Navigate to your project directory
+    5. Execute in terminal: uvicorn prompt:app --reload
+    6. Open a new tab in terminal
+    7. Execute in new terminal: ngrok http --url=winning-related-primate.ngrok-free.app 8000
+    8. Now the program is able to run
+
+How to Run Program:
     1. Ensure all dependencies and assets are available.
     2. Run the script:
         python chat_bot.py
@@ -47,9 +57,13 @@ File Structure:
     - button.py - Button class for handling clickable UI elements
     - chatbot.py - ChatBot class for generating responses
     - profile.py - Profile class for managing user profiles
+    - prompt.py - FastAPI logic to access OpenAI model
+    - convert_to_prompt_completion.py - Cleans the therapy data for model finetuning
+    - train_chat_truncated.jsonl - Data used to finetune model for therapy usage
+    - client_server_chatbot.py - Program utilizing a Client Server architecture for the chatbot
 
 Note:
-    -  The ChatBot class appears to use an API key directly within the code
+    -  The OOP ChatBot class appears to use an API key directly within the code
             consider securing this key and avoiding hardcoding for production use.
     - Profiles are limited to 3 slots by default in the current design.
     - Mood tracking is numerical (1-7 scale).
