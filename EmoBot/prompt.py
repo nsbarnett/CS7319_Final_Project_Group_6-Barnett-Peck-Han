@@ -1,10 +1,16 @@
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
+from dotenv import load_dotenv
+import os
 from openai import OpenAI
+
+load_dotenv()
+
+api_key = os.getenv("OPENAI_API_KEY")
 
 app = FastAPI()
 
-client = OpenAI(api_key='sk-YzJPkL5VfeeQodVMqdNYYfXGAsAWn6ilEPy4Mua94QT3BlbkFJq6Y_EGq5n397wxXzBkc20WBy1u_ZRdSnEGl0Ge-Z4A')
+client = OpenAI(api_key=api_key)
 
 class ChatInput(BaseModel):
     message: str
@@ -14,7 +20,7 @@ def chat(input: ChatInput):
     completion = client.chat.completions.create(
         model="ft:gpt-4o-mini-2024-07-18:personal::BLXyxoHx",
         messages = [
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": "You are a helpful assistant. Please keep the responses shorter. No longer than 50 tokens."},
             {"role": "user", "content": input.message}
         ]
     )

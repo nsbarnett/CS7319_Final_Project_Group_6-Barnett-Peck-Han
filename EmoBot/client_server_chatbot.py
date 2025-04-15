@@ -6,7 +6,6 @@ from chatbot import ChatBot
 import json
 from profile import Profile
 
-
 # To start server
 # 1. Navigate to directory
 # 2. execute in terminal: uvicorn prompt:app --reload
@@ -535,6 +534,24 @@ def mood_selection_pre_chat(profile):
 
         pygame.display.update()
 
+def get_aspiration_from_model(user_mood, chat_history):
+    prompt = (
+        f"User mood: {user_mood}. "
+        f"Chat history: {chat_history}. "
+        f"Provide a short, positive motivational aspiration. "
+        f"Keep it under 50 characters. No disclaimers or instructions."
+    )
+    try:
+        response = requests.post(
+            "https://winning-related-primate.ngrok-free.app/chat", 
+            json={"message": prompt}
+        )
+        if response.status_code == 200:
+            return response.json().get("response", "Stay positive.")
+        else:
+            return f"[Error: {response.status_code}]"
+    except Exception as e:
+        return f"[Request failed: {str(e)}]"
 
 # Mood selection screen after chat
 # This screen allows the user to select their mood after finishing a chat session
@@ -560,9 +577,9 @@ def mood_selection_post_chat(profile):
 
     # Geneate end session aspirations
     # Initialize chat bot
-    aspiration = send_to_chatbot("You will provide a motivational aspiration to the user based on their mood value. The mood is from 1 to 7, where 1 is bad and 7 is great. Review their chat history and provide a motivational aspiration to the user.")
+    aspiration = get_aspiration_from_model(profile['post_chat_mood'], profile['chat_history'])
+    aspiration_label = get_font(10).render(f"Aspiration: {aspiration}", True, "#b68f40")
 
-    #aspiration = aspiration_generator.get_response(f"User mood: {profile['post_chat_mood']}. Chat history: {profile['chat_history']}")
     aspiration_label = get_font(10).render(f"Aspiration: {aspiration}", True, "#b68f40")
     aspiration_label_rect = aspiration_label.get_rect(center=(WIDTH / 2, HEIGHT / 5 - 30))
 
