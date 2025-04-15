@@ -50,3 +50,56 @@
    ```bash
    pip install pygame openai
 
+## Architecture Comparison: Client-Server vs. OOP
+## Client-Server Architecture
+In this architecture, the system is divided into two distinct layers:
+
+-**Client Side**: Our front-end application runs a UI Handler that collects user input and sends it to the backend. It communications with the server using an HTTP POST request tunneled through 'Ngrok'.
+
+-**Server Side**: The backend is implemented using FastAPI. It routes requests through 'prompt.py', which then delegates tasks to internal services such as our **ChatBot** and **aspiration gengeator**, both powered by GPT-4o-mini.
+
+### Mapped Files and Classes
+| Component            | Class / File                | Description                                                  |
+|----------------------|-----------------------------|--------------------------------------------------------------|
+| UI Handler           | `client_server_chatbot.py`  | Captures input and sends POST request                        |
+| API Gateway          | `prompt.py`                 | Routes input to GPT-4o-mini via FastAPI                      |
+| GPT-4o-mini (chat)   | `OpenAI API`                | Returns contextual chatbot replies                           |
+| GPT-4o-mini (aspiration) | `OpenAI API`             | Returns affirmation based on user's emotional state          |
+
+This approach ensures clean separation between UI and business logic, and supports distributed deployment.
+
+---
+
+## 🧱 Object-Oriented Programming (OOP)
+
+In parallel, we also structured the project using OOP principles. Each core functionality is implemented as a class:
+
+- `ChatBot`: central orchestrator for generating responses
+- `Profile`: stores user’s mood and history
+- `SentimentAnalyzer` and `AffirmationGenerator`: embedded as logic inside the chatbot
+- UI elements are managed using `Button` and `object_oriented_chatbot.py`
+
+### OOP Class Mapping Summary
+
+| Module / Object         | Mapped Class(es)               | Description                                               |
+|-------------------------|---------------------------------|-----------------------------------------------------------|
+| UI Handler              | `Button`, `object_oriented_chatbot.py` | Captures input and displays output                   |
+| ChatBot                 | `ChatBot`                       | Manages dialogue and routes logic                         |
+| Sentiment Analyzer      | `ChatBot.instructions`          | Parses tone from user input                               |
+| Affirmation Generator   | `ChatBot.instructions`          | Delivers positive affirmations                            |
+| Chat History            | `ChatBot.chat_history`          | Stores interaction memory                                 |
+| Feedback System         | `ChatBot.instructions`          | Learns from user responses                                |
+| User Profile            | `Profile.pre_chat_mood`, etc.   | Tracks mood before and after chats                        |
+
+This structure promotes encapsulation, modularity, and reusability—making it easier to test and extend functionality.
+
+---
+
+## Final Architecture Decision: Hybrid
+
+We chose to **combine** both architectures in our final implementation:
+
+- **Client-Server** architecture for deployment structure and API handling
+- **OOP** design for internal code structure and logic organization
+
+This hybrid approach gives us the best of both: scalability, clarity, and maintainability.
