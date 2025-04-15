@@ -22,6 +22,8 @@
 
 - Python 3.x
 - [pygame](https://www.pygame.org/)
+- OpenAI API Key (https://platform.openai.com/api-keys)
+  - **FOR GRADER: If you have issues with generating an API key, please contact me at nsbarnett@smu.edu.**
 
 ### Required Assets (in `/assets/` folder):
 - `Play Rect.png`
