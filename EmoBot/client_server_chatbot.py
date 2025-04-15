@@ -2,8 +2,15 @@ import pygame, sys
 from pygame import mixer
 from button import Button
 from chatbot import ChatBot
+import requests
 import json
 from profile import Profile
+
+# To start server
+# 1. Navigate to directory
+# 2. execute in terminal: uvicorn prompt:app --reload
+# 3. In a new terminal tab, execute: ngrok http --url=winning-related-primate.ngrok-free.app 8000 
+# 4. Then run this program
 
 # initiate pygame
 pygame.init()
@@ -108,6 +115,19 @@ def remove_profile(profile):
     except (FileNotFoundError, json.JSONDecodeError):
         print("Error: profiles.json not found or invalid.")
 
+def send_to_chatbot(user_input):
+    try: 
+        response = requests.post(
+            "https://winning-related-primate.ngrok-free.app/chat",
+            json={"message": user_input}
+        )
+        if response.status_code == 200:
+            return response.json().get("response", "[No response]")
+        else: 
+            return f"[Error {response.status_code}]"
+    except Exception as e:
+        return f"[Request failed: {str(e)}]"
+
 # game loop
 def start_chat(profile):
 
@@ -170,7 +190,7 @@ def start_chat(profile):
                         profile["chat_history"].append(f"You: {input_text}")
 
                         ##### CHANGE: CLIENT-SERVER CHATBOT #####
-                        response = chat.get_response(input_text)  # Get response from chatbot
+                        response = send_to_chatbot(input_text) # Get response from chatbot
 
                         # Here, you could send `text` to a chatbot function and append the response
                         profile["chat_history"].append(f"Bot: {response}")
