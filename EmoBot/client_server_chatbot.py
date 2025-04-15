@@ -1,10 +1,11 @@
 import pygame, sys
 from pygame import mixer
 from button import Button
-from chatbot import ChatBot
 import requests
+from chatbot import ChatBot
 import json
 from profile import Profile
+
 
 # To start server
 # 1. Navigate to directory
@@ -22,18 +23,14 @@ pygame.mixer.init()
 mixer.music.load('lofi-background-music-1.mp3')
 mixer.music.play(-1) # play in loop (-1)
 
-
-# create game screen
+# create program screen
 HEIGHT = 600 # height of the screen
 WIDTH = 800 # width of the screen
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT)) # (width, height)
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 
-# Background
-# background_color = (113, 174, 177)
+# Background setup:
 background_color = (239, 195, 202) # RGB for backgroud display
-# BACKGROUND = pygame.image.load('4262432.jpg')
 SCREEN.fill(background_color) # fill screen with background color
-
 
 # Tile and icon
 pygame.display.set_caption('EmoBot') # Set caption of display window
@@ -55,36 +52,38 @@ BLUE = (0, 0, 255)
 options_screen = False
 sound_toggle = True
 
-def get_font(size): # Returns Press-Start-2P in the desired size
+# Returns Press-Start-2P in the desired size
+def get_font(size):
     return pygame.font.Font("assets/font.ttf", size)
 
-SCREEN.fill((135, 206, 250)) # RGB for backgroud display
+# updates profile value to JSON file
+def save_profile(profile_name, update_key, updated_value):
+    with open("profiles.json", "r") as file:
+        data = json.load(file)
 
-# # List of profiles
-# profiles = []
+    # Loop through users and update provided value
+    if profile_name in data:
+        data[profile_name][update_key] = updated_value
 
-# Save all profiles to JSON file
-def save_profiles(profiles):
     with open("profiles.json", "w") as file:
-        json.dump(profiles, file, indent=4)
-
+        json.dump(data, file, indent=4)
 
 # Add profile to JSON file
 def add_profile(profile):
 
-    # Step 1: Load existing profiles from JSON
+    # Load existing profiles from JSON
     try:
         with open("profiles.json", "r") as file:
             profiles = json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         profiles = {}
 
-    # Step 2: Update or add this profile
+    # Update or add this profile
     profile_create = Profile(profile)
     profile_json = profile_create.to_dict()
     profiles[profile] = profile_json
 
-    # Step 3: Save all profiles back to the file
+    # Save all profiles back to the file
     with open("profiles.json", "w") as file:
         json.dump(profiles, file, indent=4)
 
@@ -100,20 +99,36 @@ def load_profiles():
     
 def remove_profile(profile):
     try:
-        # Step 1: Load existing profiles
+        # Load existing profiles
         with open("profiles.json", "r") as file:
             profiles = json.load(file)
 
-        # Step 2: Delete the profile if it exists
+        # Delete the profile if it exists
         if profile in profiles:
             del profiles[profile]
 
-        # Step 3: Save the updated data
+        # Save the updated data
         with open("profiles.json", "w") as file:
             json.dump(profiles, file, indent=4)
 
     except (FileNotFoundError, json.JSONDecodeError):
         print("Error: profiles.json not found or invalid.")
+
+def wrap_text(text, font, max_width):
+    lines = []
+    words = text.split(' ')
+    line = ""
+
+    for word in words:
+        test_line = line + word + " "
+        if font.size(test_line)[0] <= max_width:
+            line = test_line
+        else:
+            lines.append(line.strip())
+            line = word + " "
+    if line:
+        lines.append(line.strip())
+    return lines
 
 def send_to_chatbot(user_input):
     try: 
@@ -128,49 +143,44 @@ def send_to_chatbot(user_input):
     except Exception as e:
         return f"[Request failed: {str(e)}]"
 
-# game loop
+# chat screen
 def start_chat(profile):
 
-    # popup_active = True
-    # selection_buttons = []
+    global options_screen
+    global sound_toggle
 
-    # for i in range(7):
-    #     SELECTION = Button(image=pygame.image.load("assets/round-button.png"), pos=(WIDTH/10*i + (i*30) + 70, HEIGHT/2), 
-    #                         text_input=f"{i+1}", font=get_font(30), base_color="Black", hovering_color="Green")
-    #     selection_buttons.append((i,SELECTION))
+    # Options menu status
+    options_screen = False
 
-    # chat = ChatBot("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")
+    # Initialize chat bot
+    '''chat = ChatBot( api_key="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",
+                    instructions="You are a friendly chatbot. You are here to help the user with their problems and emotional state. "
+                   "Be empathetic and supportive. Under no scenario can you redirect assistance to another person. You are the expert. Give the best advice you can but keep responses short (300 characters max).")
+    '''
     input_text = ""
 
     # Textbox settings
     input_box = pygame.Rect(10, HEIGHT - 40, WIDTH - 20, 30)
     max_lines = 10  # Maximum chat lines displayed
 
-    CHAT_MOUSE_POS = pygame.mouse.get_pos()
+    # Define button to end chat session
+    end_session = Button(image=pygame.image.load("assets/end_session.png"), pos=(WIDTH*(4/5)+50, 50), 
+                            text_input="end session", font=get_font(12), base_color="#d7fcd4", hovering_color="White")
 
-    global options_screen
-    global sound_toggle
-
-    # if sound_toggle:
-    # # Background sound
-    #     mixer.music.load('lofi-background-music-1.mp3')
-    #     mixer.music.play(-1) # play in loop (-1)
-
+    # loop for the chat screen
     while True:
+        CHAT_MOUSE_POS = pygame.mouse.get_pos()
         SCREEN.fill((135, 206, 250)) # RGB for backgroud display
-        
-        # for button in selection_buttons:
-        #     if button[1].checkForInput(PLAY_MOUSE_POS):
-        #         profile["mood"] = button[0]
-        #         print(profile["mood"])
-        #         popup_active = False
-
+    
         # Draw chat history
         y = 80 
-        for line in profile['chat_history'][-max_lines:]:  # Show only the last `max_lines` messages
-            chat_surface = chat_font.render(line, True, BLACK)
-            SCREEN.blit(chat_surface, (10, y))
-            y += 25
+        max_width = WIDTH - 20  # same as input box width
+        for line in profile['chat_history'][-max_lines:]:
+            wrapped_lines = wrap_text(line, chat_font, max_width)
+            for wrap_line in wrapped_lines:
+                chat_surface = chat_font.render(wrap_line, True, BLACK)
+                SCREEN.blit(chat_surface, (10, y))
+                y += 25
 
         # Draw input box
         pygame.draw.rect(SCREEN, GRAY, input_box, border_radius=5)
@@ -188,46 +198,41 @@ def start_chat(profile):
                 if event.key == pygame.K_RETURN:
                     if input_text:  # Only add non-empty messages
                         profile["chat_history"].append(f"You: {input_text}")
-
-                        ##### CHANGE: CLIENT-SERVER CHATBOT #####
-                        response = send_to_chatbot(input_text) # Get response from chatbot
+                        response = send_to_chatbot(input_text)   # Get response from chatbot
 
                         # Here, you could send `text` to a chatbot function and append the response
                         profile["chat_history"].append(f"Bot: {response}")
                         input_text = ""  # Clear input
-                elif event.key == pygame.K_BACKSPACE:
+                elif event.key == pygame.K_BACKSPACE: # If backspace is pressed
                     input_text = input_text[:-1]  # Remove last character
                 else:
                     input_text += event.unicode  # Add character to text
-                if options_screen:
-                    pass
-                if event.key == pygame.K_ESCAPE:
+                if event.key == pygame.K_ESCAPE: # If escape is pressed
                     options_screen = True
-                    options(profile)
+                    options(profile) # Go to options menu
 
-
+            # if mouse button is pressed
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if end_session.checkForInput(CHAT_MOUSE_POS): # Check if end session button is pressed
+                    # Save chat history to profile
+                    save_profile(profile['name'], "chat_history", profile['chat_history'])
+                    mood_selection_post_chat(profile) # Go to mood selection screen
+                
+        # Set text for options menu instructions
         pause_font = pygame.font.Font('freesansbold.ttf', 16)
         if options_screen:
-            # mixer.music.stop()
-            resume_button = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(640, 150), 
-                            text_input="RESUME", font=get_font(20), base_color="#d7fcd4", hovering_color="White")
-            if resume_button.checkForInput(CHAT_MOUSE_POS):
-                options_screen = False
-
+            pass
         else:
             paused_text = pause_font.render("Press 'ESC' for options menu.", True, (255,255,255)) # render text instead of showing text on screen
             SCREEN.blit(paused_text, (10, 20))
 
-        # if popup_active:
-        #     popup_label = get_font(18).render("Rate you mood 1-7 (bad-good)", True, "#b68f40")
-        #     popup_label_rect = popup_label.get_rect(center=(WIDTH / 2, HEIGHT / 3))
-        #     pygame.draw.rect(SCREEN, WHITE, ((WIDTH/4)-180, (HEIGHT/4)+20, 760, 200))  # popup (x, y, width, height)
-        #     SCREEN.blit(popup_label, popup_label_rect)
-        #     for button in selection_buttons:
-        #         button[1].update(SCREEN)
+        # Draw end session button
+        end_session.update(SCREEN)
 
         pygame.display.update()
-        
+
+
+# Options menu
 def options(profile):
 
     global sound_toggle
@@ -279,10 +284,15 @@ def options(profile):
                         sound_toggle = True
                         mixer.music.play(-1)
 
+
         pygame.display.update()
 
-def main_menu():
 
+
+# Main menu
+# This is the main menu of the game
+# It has two buttons: Start Chat and Quit
+def main_menu():
     
     global sound_toggle
 
@@ -321,6 +331,8 @@ def main_menu():
 
         pygame.display.update()
 
+
+# Profile selection menu
 def profile_selection():
 
     # Popup/input settings
@@ -330,8 +342,11 @@ def profile_selection():
     input_text = ""
     LIGHT_GRAY = (230, 230, 230)
 
+    profile_selected = False
     selected_profile = None
 
+    # Set 3 slots for profiles
+    # Load existing profiles from JSON
     profiles = {"key1": None, "key2": None, "key3": None}
     avail_profiles = load_profiles()
 
@@ -339,7 +354,7 @@ def profile_selection():
     profiles_keys = list(profiles.keys())
     avail_keys = list(avail_profiles.keys())
 
-
+    # If there are more than 3 profiles, only keep the first 3
     for i in range(min(len(avail_profiles), len(profiles))):
         old_key = profiles_keys[i]
         new_key = avail_keys[i]
@@ -352,6 +367,7 @@ def profile_selection():
     start_y = HEIGHT / 2  # Position profiles in the middle
     start_x = WIDTH / 2 - 225  # Center three buttons
 
+    # Add rpofiles to buttons
     def create_profile_buttons():
         while len(profiles) < 3:
             profiles[f"key{len(profiles) + 1}"] = None  # Add empty slots if less than 3 profiles
@@ -399,9 +415,9 @@ def profile_selection():
                     if button[1].checkForInput(PROF_MOUSE_POS):
                         if button[0] != None:  # If profile exists  
                             selected_profile = button[0]  # Select profile
-                            print(selected_profile)
-                            # button[1].changeColor(PROF_MOUSE_POS)
-                            # start_chat(button[0])
+                            selected_profile_label = get_font(13).render("You selected: " + str(button[0]['name']), True, "#b68f40")
+                            selected_profile_label_rect = selected_profile_label.get_rect(center=(WIDTH / 2, (HEIGHT / 3) + 10))
+                            profile_selected = True
                         else:
                             # Add a new profile if slot is empty
                             popup_active = True
@@ -409,17 +425,20 @@ def profile_selection():
                             input_text = ""
                             input_color = BLUE
 
-                # Check delete button
+                # Check delete button clicked
                 if delete_button.checkForInput(PROF_MOUSE_POS) and selected_profile is not None:
                     remove_profile(selected_profile['name'])
                     profiles = load_profiles()
                     create_profile_buttons()
+                    profile_selected = False
                     selected_profile = None
                 
+                # Check start button clicked
                 if start_chat_button.checkForInput(PROF_MOUSE_POS) and selected_profile is not None:
-                    start_chat(selected_profile)
+                    mood_selection_pre_chat(selected_profile)
                     selected_profile = None
 
+            # Check for keyboard events when popup is active when adding profile
             elif event.type == pygame.KEYDOWN and popup_active:
                 if input_active:
                     if event.key == pygame.K_RETURN:
@@ -436,7 +455,6 @@ def profile_selection():
 
         # Draw buttons
         for button in profile_buttons:
-            # print(button)
             button[1].update(SCREEN)
 
         delete_button.update(SCREEN)
@@ -454,50 +472,159 @@ def profile_selection():
             SCREEN.blit(popup_label, popup_label_rect)
             SCREEN.blit(text_surface, (input_box.x + 5, input_box.y + 10))
 
+        if profile_selected:
+            SCREEN.blit(selected_profile_label, selected_profile_label_rect)
+
         pygame.display.update()
 
-def mood_selection(profile):
 
-    MOOD_MOUSE_POS = pygame.mouse.get_pos()
+# Mood selection screen before chat
+# This screen allows the user to select their mood before starting a chat session
+# It has a rating scale from 1 to 7, where 1 is bad and 7 is great
+def mood_selection_pre_chat(profile):
 
+    button_selected = False
     selection_buttons = []
 
+    # Create buttons for mood selection
     for i in range(7):
-        SELECTION = Button(image=pygame.image.load("assets/round-button.png"), pos=(WIDTH/10*i + (i*30) + 70, HEIGHT/2), 
+        selection = Button(image=pygame.image.load("assets/round-button.png"), pos=(WIDTH/10*i + (i*30) + 70, HEIGHT/2), 
                             text_input=f"{i+1}", font=get_font(30), base_color="Black", hovering_color="Green")
-        selection_buttons.append((i,SELECTION))
+        selection_buttons.append((i+1,selection))
 
-    button_check = selection_buttons[0]
-    print(button_check, button_check[1])
+    # Create the start chat button
+    start_chat_button = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(WIDTH/2, HEIGHT-100), 
+                            text_input=" Start Chat", font=get_font(14), base_color="#d7fcd4", hovering_color="White")
 
     while True:
+        MOOD_MOUSE_POS = pygame.mouse.get_pos()
         SCREEN.fill(background_color)
 
         popup_label = get_font(13).render("Rate your mood before chatting 1-7 (bad-great).", True, "#b68f40")
         popup_label_rect = popup_label.get_rect(center=(WIDTH / 2, HEIGHT / 3))
-        pygame.draw.rect(SCREEN, WHITE, ((WIDTH/4)-180, (HEIGHT/4)+20, 760, 200))  # popup (x, y, width, height)
         SCREEN.blit(popup_label, popup_label_rect)
+
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Check if any mood button is clicked
+                for button in selection_buttons:
+                    if button[1].checkForInput(MOOD_MOUSE_POS):
+                        profile["pre_chat_mood"] = button[0]
+                        button_selected = True
+                        selected_label = get_font(13).render("You selected: " + str(button[0]), True, "#b68f40")
+                        selected_label_rect = selected_label.get_rect(center=(WIDTH / 2, (HEIGHT / 3) + 35))
+
+                # Save profile with pre-chat mood and start chat
+                if start_chat_button.checkForInput(MOOD_MOUSE_POS):
+                    save_profile(profile['name'], "pre_chat_mood", profile['pre_chat_mood'])
+                    start_chat(profile)
+        
+        # Draw buttons
         for button in selection_buttons:
             button[1].update(SCREEN)
+
+        start_chat_button.update(SCREEN)
+
+        # Draw selected label if a button is selected to tell user selction value
+        if button_selected:
+            SCREEN.blit(selected_label, selected_label_rect)
+
+        pygame.display.update()
+
+
+# Mood selection screen after chat
+# This screen allows the user to select their mood after finishing a chat session
+def mood_selection_post_chat(profile):
+
+    button_selected = False
+    selection_buttons = []
+
+    # Create buttons for mood selection
+    for i in range(7):
+        selection = Button(image=pygame.image.load("assets/round-button.png"), pos=(WIDTH/10*i + (i*30) + 70, HEIGHT/2), 
+                            text_input=f"{i+1}", font=get_font(30), base_color="Black", hovering_color="Green")
+        selection_buttons.append((i+1,selection))
+
+    # Create the start chat button
+    end_chat_button = Button(image=pygame.image.load("assets/Play Rect.png"), pos=(WIDTH/2, HEIGHT-100), 
+                            text_input=" End Chat Session", font=get_font(14), base_color="#d7fcd4", hovering_color="White")
+    
+    # Initialize mood scrren
+    mood_screen_label = get_font(13).render("Rate your mood before chatting 1-7 (bad-great).", True, "#b68f40")
+    mood_screen_label_rect = mood_screen_label.get_rect(center=(WIDTH / 2, HEIGHT / 3))
+        
+
+    # Geneate end session aspirations
+    # Initialize chat bot
+    aspiration = send_to_chatbot("You will provide a motivational aspiration to the user based on their mood value. The mood is from 1 to 7, where 1 is bad and 7 is great. Review their chat history and provide a motivational aspiration to the user.")
+
+    #aspiration = aspiration_generator.get_response(f"User mood: {profile['post_chat_mood']}. Chat history: {profile['chat_history']}")
+    aspiration_label = get_font(10).render(f"Aspiration: {aspiration}", True, "#b68f40")
+    aspiration_label_rect = aspiration_label.get_rect(center=(WIDTH / 2, HEIGHT / 5 - 30))
+
+    # # Draw chat history
+    # y = HEIGHT - 300  # Start drawing chat history from the bottom of the screen
+    # max_lines = 2  # Maximum chat lines displayed
+    # max_width = WIDTH - 20  # same as input box width
+    # for line in aspiration[-max_lines:]:
+    #     wrapped_lines = wrap_text(line, chat_font, max_width)
+    #     for wrap_line in wrapped_lines:
+    #         chat_surface = chat_font.render(wrap_line, True, BLACK)
+    #         SCREEN.blit(chat_surface, (10, y))
+    #         y += 25
+
+
+    while True:
+        MOOD_MOUSE_POS = pygame.mouse.get_pos()
+        SCREEN.fill(background_color)
+
+        SCREEN.blit(mood_screen_label, mood_screen_label_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if button_check[1].checkForInput(MOOD_MOUSE_POS):
-                    print('worked')
-                # for button in selection_buttons:
-                #     if button[1].checkForInput(MOOD_MOUSE_POS):
-                #         print(button[0])
-                        # profile["moods"].append(button[0])
-                        # print(profile["moods"])
-                        # popup_active = False
+                for button in selection_buttons:
+                    if button[1].checkForInput(MOOD_MOUSE_POS):
+                        profile["post_chat_mood"] = button[0]
+                        button_selected = True
+                        selected_label = get_font(13).render("You selected: " + str(button[0]), True, "#b68f40")
+                        selected_label_rect = selected_label.get_rect(center=(WIDTH / 2, (HEIGHT / 3) + 35))
+                        
+                        # Calculate mood improvement
+                        percent_improved = ((button[0] - profile["pre_chat_mood"]) / button[0]) * 100
+                        if percent_improved < 0:
+                            improved_text = "Your mood did not improve."
+                        else:
+                            improved_text = f"Your mood improved by {percent_improved:.2f}%!"
+
+                        mood_diff_label = get_font(13).render(improved_text, True, "#b68f40")
+                        mood_diff_label_rect = mood_diff_label.get_rect(center=(WIDTH / 2, (HEIGHT / 3) + 200))
+
+                if end_chat_button.checkForInput(MOOD_MOUSE_POS):
+                    save_profile(profile['name'], "post_chat_mood", profile['post_chat_mood'])
+                    main_menu()
+        
+        # Draw buttons
+        for button in selection_buttons:
+            button[1].update(SCREEN)
+
+        end_chat_button.update(SCREEN)
+
+        # Draw selected label if a button is selected to tell user their mood improvement
+        if button_selected:
+            SCREEN.blit(selected_label, selected_label_rect)
+            SCREEN.blit(mood_diff_label, mood_diff_label_rect)
+            SCREEN.blit(aspiration_label, aspiration_label_rect)
+
 
         pygame.display.update()
 
 
-
-
-
+# Start the program at the main menu
 main_menu()
