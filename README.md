@@ -51,7 +51,7 @@
    pip install pygame openai ngrok uvicorn fastapi
 3. **For the OO architecture:**:
    - Ensure you are in the correct directory (./EmoBot/Selected)
-   - Run
+   - Run:
    ```bash
    python .\object_oriented_chatbot.py
 4. **Navigate to the project directory via terminal**
