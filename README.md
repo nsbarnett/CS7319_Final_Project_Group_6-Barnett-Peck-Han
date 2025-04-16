@@ -56,12 +56,12 @@
    python .\object_oriented_chatbot.py
 4. **Navigate to the project directory via terminal**
 5. **Run in terminal**
-   uvicorn prompt:app --reload
+   - uvicorn prompt:app --reload
 6. **In a new terminal tab, run the following**
-   ngrok http --url=winning-related-primate.ngrok-free.app 8000
-   Now the server is exposed to the internet at port 8000
+   - ngrok http --url=winning-related-primate.ngrok-free.app 8000
+   - Now the server is exposed to the internet at port 8000
 7. **For client_server_chatbot.py, obtain an OpenAI API key and save it in a .env file with the following format**
-   OPEN_API_KEY=your-api-key-here
+   - OPEN_API_KEY=your-api-key-here
 8. **Put the .env file in the project directory**
 
 ## Architecture Comparison: Client-Server vs. OOP
