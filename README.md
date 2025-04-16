@@ -49,12 +49,17 @@
 2. **Install dependencies in terminal**:
    ```bash
    pip install pygame openai
+3. **For the OO architecture:**:
+   - Ensure you are in the correct directory (./EmoBot/Selected)
+   - Run
+   ```bash
+   python .\object_oriented_chatbot.py
 
 ## Architecture Comparison: Client-Server vs. OOP
 ## Client-Server Architecture
 In this architecture, the system is divided into two distinct layers:
 
--**Client Side**: Our front-end application runs a UI Handler that collects user input and sends it to the backend. It communications with the server using an HTTP POST request tunneled through 'Ngrok'.
+-**Client Side**: Our front-end application runs a UI Handler that collects user input and sends it to the backend. It communicates with the server using an HTTP POST request tunneled through 'Ngrok'.
 
 -**Server Side**: The backend is implemented using FastAPI. It routes requests through 'prompt.py', which then delegates tasks to internal services such as our **ChatBot** and **aspiration gengeator**, both powered by GPT-4o-mini.
 
@@ -106,6 +111,6 @@ This hybrid approach gives us the best of both: scalability, clarity, and mainta
 
 ## Graduate Requirement: In-Depth Analysis
 
-For our AI mental health app, we evaluated using two architectural styles: client-server and object-oriented programming (OOP). The client-server model uses a FastAPI backend to host our fine-tuned OpenAI model, with Ngrok providing temporary public access for prototyping. This architecture separates the UI from the AI logic, supporting modularity, scalability, and remote collaboration. We implemented it in this way, as in actual development, we will want to use a more powerful model that does not have as much latency as our current model. We will also use faster connectors than FastAPI and Ngrok, as there was a problem with latency in our testing. Ngrok proved to be a slow connector for deployment, but adequate for prototyping. For actual deployment, our team would utilize Amazon Web Services to host the server for faster response times from the server. Amazon Web Services also allows for very fast model throughput, utilizing the computational power of the cloud to process user input and give an AI agent's response. Furthermore, the client-server architecture allows for freedom of model selection. We used OpenAI's 4o-mini model as it was convenient, but models can also be hosted locally on a powerful server as well. There is freedom of local or remote models with client-server architecture.
+For our AI mental health app, we evaluated using two architectural styles: client-server and object-oriented programming (OOP). The client-server model uses a FastAPI backend to host our fine-tuned OpenAI model, with Ngrok providing temporary public access for prototyping. This architecture separates the UI from the AI logic, supporting modularity, scalability, and remote collaboration. We implemented it in this way, as in actual development, we will want to use a more powerful model that does not have as much latency as our current model. We will also use faster connectors than FastAPI and Ngrok, as there was a problem with latency in our testing. Ngrok proved to be a slow connector for deployment, but adequate for prototyping. For actual deployment, our team would utilize Amazon Web Services to host the server for faster response times. Amazon Web Services also allows for very fast model throughput, utilizing the computational power of the cloud to process user input and give an AI agent's response. Furthermore, the client-server architecture allows for freedom of model selection. We used OpenAI's 4o-mini model as it was convenient, but models can also be hosted locally on a powerful server as well. There is freedom of local or remote models with client-server architecture.
 
 The OOP architecture experienced much lower latency, but is less scalable than the client-server architecture. Since the OOP architecture depends on the computational power of the user's machine, the usage of any large language models is not advised. We found that the client-server architecture allows for better separation of concerns, easier maintenance, and external access, though it does require stronger models and depends on the reliability of API's and the machine that the server is hosted on. OOP allows for easier modularity and performs better for a single, local use, but lacks the scalability of a client-server architecture. Ultimately, we recommend a hybrid approach, leveraging the client-server architecture for AI services (ideally hosted in the cloud rather than on our laptops) and OOP for the client-side encapsulated logic. 
