@@ -49,20 +49,24 @@
 2. **Install dependencies in terminal**:
    ```bash
    pip install pygame openai ngrok uvicorn fastapi
-3. **For the OO architecture:**:
+3. **For the OO architecture:**
    - Ensure you are in the correct directory (./EmoBot/Selected)
    - Run:
    ```bash
    python .\object_oriented_chatbot.py
-4. **Navigate to the project directory via terminal**
-5. **Run in terminal**
-   - uvicorn prompt:app --reload
-6. **In a new terminal tab, run the following**
-   - ngrok http --url=winning-related-primate.ngrok-free.app 8000
-   - Now the server is exposed to the internet at port 8000
-7. **For client_server_chatbot.py, obtain an OpenAI API key and save it in a .env file with the following format**
-   - OPEN_API_KEY=your-api-key-here
-8. **Put the .env file in the project directory**
+  **For the OO architecture:**
+  **Navigate to the project directory via terminal**
+  - Run in terminal
+    ```bash
+    uvicorn prompt:app --reload
+  - In a new terminal tab, run the following
+    ```bash
+    ngrok http --url=winning-related-primate.ngrok-free.app 8000
+  - Now the server is exposed to the internet at port 8000
+  - Obtain an OpenAI API key and save it in a .env file with the following format**
+    ```bash
+    OPEN_API_KEY=your-api-key-here
+  **Put the .env file in the project directory**
 
 ## Architecture Comparison: Client-Server vs. OOP
 ## Client-Server Architecture
