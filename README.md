@@ -46,7 +46,7 @@
 ## Getting Started
 
 1. **Clone or download the project**
-2. **Install dependencies**:
+2. **Install dependencies in terminal**:
    ```bash
    pip install pygame openai
 
@@ -74,8 +74,8 @@ This approach ensures clean separation between UI and business logic, and suppor
 
 In parallel, we also structured the project using OOP principles. Each core functionality is implemented as a class:
 
-- `ChatBot`: central orchestrator for generating responses
-- `Profile`: stores user’s mood and history
+- `ChatBot`: central orchestrator for generating responses, uses gpt-4 model, generated API key, and hard-coded written instructions.
+- `Profile`: stores user’s mood and chat history
 - `SentimentAnalyzer` and `AffirmationGenerator`: embedded as logic inside the chatbot
 - UI elements are managed using `Button` and `object_oriented_chatbot.py`
 
